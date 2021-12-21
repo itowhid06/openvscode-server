@@ -173,12 +173,12 @@ export class GitpodInsightsAppender implements ITelemetryAppender {
 	}
 }
 
-// const formatEventName = (str: string) => {
-// 	return str
-// 		.replace(/^[A-Z]/g, letter => letter.toLowerCase())
-// 		.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
-// 		.replace(/[^\w]/g, '_');
-// };
+const formatEventName = (str: string) => {
+	return str
+		.replace(/^[A-Z]/g, letter => letter.toLowerCase())
+		.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+		.replace(/[^\w]/g, '_');
+};
 
 let readAccessTracked = false;
 let writeAccessTracked = false;
@@ -208,6 +208,33 @@ function mapTelemetryData(eventName: string, data: any): RemoteTrackMessage | un
 				event: 'vscode_file_access',
 				properties: {
 					kind: 'write',
+					workspaceId: data.workspaceId,
+					workspaceInstanceId: data.workspaceInstanceId,
+					sessionID: data.sessionID,
+					timestamp: data.timestamp
+				},
+			};
+		case 'notification:show':
+		case 'notification:close':
+		case 'notification:hide':
+			return {
+				event: `vscode_${formatEventName(eventName)}`,
+				properties: {
+					id: data.id,
+					source: data.source,
+					workspaceId: data.workspaceId,
+					workspaceInstanceId: data.workspaceInstanceId,
+					sessionID: data.sessionID,
+					timestamp: data.timestamp
+				},
+			};
+		case 'notification:actionExecuted':
+			return {
+				event: `vscode_${formatEventName(eventName)}`,
+				properties: {
+					id: data.id,
+					source: data.source,
+					actionLabel: data.actionLabel,
 					workspaceId: data.workspaceId,
 					workspaceInstanceId: data.workspaceInstanceId,
 					sessionID: data.sessionID,
